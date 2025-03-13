@@ -7,7 +7,7 @@ the LED.
 
 Project Members:
 - Prachit Amin
-- Sitong Stone Li
+- Sitong "Stone" Li
 - Shreyas Sakharkar
 - Dylan Paige
 - Jared Santiago
