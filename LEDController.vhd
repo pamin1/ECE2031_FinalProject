@@ -14,7 +14,8 @@ USE LPM.LPM_COMPONENTS.ALL;
 
 ENTITY LEDController IS
 PORT(
-    CS          : IN  STD_LOGIC;
+	 Clk         : IN  STD_LOGIC; -- 10kHz clock
+    CS          : IN  STD_LOGIC; -- chip sel
     WRITE_EN    : IN  STD_LOGIC;
     RESETN      : IN  STD_LOGIC;
     LEDs        : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
@@ -23,19 +24,40 @@ PORT(
 END LEDController;
 
 ARCHITECTURE a OF LEDController IS
+	 -- variables
+    SIGNAL counter   : INTEGER RANGE 0 TO 100 := 0;  -- PWM counter
+    SIGNAL pwm_rate  : INTEGER RANGE 0 TO 100 := 0;  -- duty cycle
 BEGIN
+	 -- Process to update pwm_rate as needed
     PROCESS (RESETN, CS)
     BEGIN
-        IF (RESETN = '0') THEN
-            -- Turn off LEDs at reset (a nice usability feature)
+        IF (RESETN = '0') THEN  -- reset all
+				counter <= 0;
+				pwm_rate <= 0;
             LEDs <= "0000000000";
-        ELSIF (RISING_EDGE(CS)) THEN
+        ELSIF (RISING_EDGE(CS)) THEN  -- set pwm_rate
             IF WRITE_EN = '1' THEN
-                -- If SCOMP is sending data to this peripheral,
-                -- use that data directly as the on/off values
-                -- for the LEDs.
-                LEDs <= IO_DATA(9 DOWNTO 0);
+					pwm_rate <= CONV_INTEGER(IO_DATA(6 DOWNTO 0));
             END IF;
         END IF;
     END PROCESS;
+	 
+    -- Process to generate PWM signal
+    PROCESS (Clk)
+    BEGIN
+        IF rising_edge(Clk) THEN  -- assuming the inside takes <1 clock cycle, this will have a period of 20 ms
+            IF counter < 199 THEN  -- check if counter has reached max count. PWM_Period * Clock_Freq - 1 -> clock_freq = 10kHz, PWM_Period = 20 ms
+                counter <= counter + 1;
+            ELSE
+                counter <= 0;
+            END IF;
+
+            IF counter < (pwm_rate*2) THEN  -- if counter < pwm_rate*multiplier, output high. PWM_rate*(max_counter/100)
+					LEDs <= "1111111111";
+            ELSE
+					LEDs <= "0000000000";
+            END IF;
+        END IF;
+    END PROCESS;
+				
 END a;
