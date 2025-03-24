@@ -32,9 +32,7 @@ BEGIN
     PROCESS (RESETN, CS)
     BEGIN
         IF (RESETN = '0') THEN  -- reset all
-				counter <= 0;
 				pwm_rate <= 0;
-            LEDs <= "0000000000";
         ELSIF (RISING_EDGE(CS)) THEN  -- set pwm_rate
             IF WRITE_EN = '1' THEN
 					pwm_rate <= CONV_INTEGER(IO_DATA(6 DOWNTO 0));
