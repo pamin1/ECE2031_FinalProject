@@ -1,0 +1,27 @@
+WIDTH=16;
+DEPTH=2048;
+
+ADDRESS_RADIX=HEX;
+DATA_RADIX=HEX;
+
+CONTENT BEGIN
+0000: B801; -- loadi &b0000000001 ;choose right most LED
+0001: 9820; -- out PWM
+0002: B864; -- loadi &h64 ;100%
+0003: 9820; -- out PWM
+0004: B838; -- loadi &b0000111000 ;choose 3 LEDs 3 from right
+0005: 9820; -- out PWM
+0006: B832; -- loadi &h32 ;50%
+0007: 9820; -- out PWM
+0008: BB00; -- loadi &b1100000000 ;choose left 2 most LED
+0009: 9820; -- out PWM
+000A: 0811; -- load reset_Ctrl_state ;reset state to LED select
+000B: 9820; -- out PWM
+000C: B880; -- loadi &b0010000000 ;choose 3rd from left LED
+000D: 9820; -- out PWM
+000E: B816; -- loadi &h16 ;25%
+000F: 9820; -- out PWM
+0010: 2810; -- jump loop
+0011: 8000; -- reset_Ctrl_state:	DW &b1000000000000000
+[0012..07FF] : 0000; -- [empty memory]
+END;
