@@ -1,133 +1,196 @@
 ORG 0
+Init:
+	Loadi 	0
+	Store	Value
+	Store	Score
+	Out		Hex1
+	
+Wait:
+	In 		Switches
+	JZero	Time
+	Jump	Wait
+Time:
+	Load 	Value
+    Addi 	1
+    Store 	Value
+	IN 		Switches
+	Sub		Bit9
+	JZero 	Calc
+	Jump 	Time
+Calc:
+	Load 	Value
+	And 	Bit08
+	JZero	Modify
+Send:
+	Store 	Value ; we get the target RNG value
+	Out 	Hex0
+	In		Timer
+	Store 	StartTime
+Done:
+	In 		Switches
+	Sub 	Bit9
+	JZero 	Done
+	jump 	Finder
 
-loop:
-in switches
-jzero loop
+Correct:
+	In 		Timer
+	Store 	EndTime
+	Loadi	100
+	Sub		EndTime
+	Add		StartTime
+	JNeg	ModScore
+UpdateScore:
+	Add 	Score
+	Store 	Score
+	Out		Hex1
+	Jump	Wait
+ModScore:
+	Loadi	0
+	Jump	UpdateScore
 
-Next:
-out PWM
+Finder:
+	JZero ErrorState
+	Store Temp 
+Rest:
 
-go:
-shift -1
-jzero inc0
-shift -1
-jzero inc1
-shift -1
-jzero inc2
-shift -1
-jzero inc3
-shift -1
-jzero inc4
-shift -1
-jzero inc5
-shift -1
-jzero inc6
-shift -1
-jzero inc7
-shift -1
-jzero inc8
-shift -1
-jzero inc9
+	loadi 1
+	out PWM
+	loadi 0
+	out PWM
 
-error:
-jump error
+	loadi &b10
+	out PWM
+	loadi 0
+	out PWM
 
-inc0:
-load b0
-addi &h8 ; currently increases brightness by 12.5%
-store b0
-out PWM
-jump wait
+	loadi &b100
+	out PWM
+	loadi 0
+	out PWM
 
-inc1:
-load b1
-addi &h8
-store b1
-out PWM
-jump wait
+	loadi &b1000
+	out PWM
+	loadi 0
+	out PWM
 
-inc2:
-load b2
-addi &h8
-store b2
-out PWM
-jump wait
+	loadi &b10000
+	out PWM
+	loadi 0
+	out PWM
 
-inc3:
-load b3
-addi &h8
-store b3
-out PWM
-jump wait
+	loadi &b100000
+	out PWM
+	loadi 0
+	out PWM
 
-inc4:
-load b4
-addi &h8
-store b4
-out PWM
-jump wait
+	loadi &b1000000
+	out PWM
+	loadi 0
+	out PWM
 
-inc5:
-load b5
-addi &h8
-store b5
-out PWM
-jump wait
+	loadi &b10000000
+	out PWM
+	loadi 0
+	out PWM
 
-inc6:
-load b6
-addi &h8
-store b6
-out PWM
-jump wait
+	loadi &b100000000
+	out PWM
+	loadi 0
+	out PWM
 
-inc7:
-load b7
-addi &h8
-store b7
-out PWM
-jump wait
+	loadi &b1000000000
+	out PWM
+	loadi 0
+	out PWM
+	
+	
+	loadi 1
+	store LED
+	in switches
+	sub Bit9
+	sub Value
+	jzero Correct
+	store temp
+	jneg abs
+	store Error
+	jump pos
+abs:
+	loadi 0
+	sub temp
+	store Error
 
-inc8:
-load b8
-addi &h8
-store b8
-out PWM
-jump wait
+pos:
+	loadi 128
+	sub Error
+	jpos change
+	loadi 128
+	store Error
+change:
+	loadi 128
+	sub Error
+	store Error
+LEDS_:
+	loadi 16
+	sub Error
+	
+	jpos Remainder
+	jzero Zero
+	
+	load LED
+	out PWM
+	
+	loadi &h64
+	out PWM
+	
+	load LED
+	shift 1
+	store LED
+	
+	load Error
+	add Negsixteen
+	store Error
+	
+	jump LEDS_
 
-inc9:
-load b9
-addi &h8
-store b9
-out PWM
-jump wait
+Zero:
+	loadi &h64
+	store Error
+	
+Remainder:
+	load LED
+	out PWM
+	load Error
+	out PWM
+	jump Rest
 
-wait:
-in switches
-jzero loop
-jump wait
+Modify:
+	Addi 	511
+	Jump	Send
 
-
-end:
-jump end
-
-; variables for brightness levels
-b0: 		DW 0
-b1: 		DW 0
-b2: 		DW 0
-b3: 		DW 0
-b4: 		DW 0
-b5: 		DW 0
-b6: 		DW 0
-b7: 		DW 0
-b8: 		DW 0
-b9: 		DW 0
-
-
-Switches:  	EQU 000
-LEDs:      	EQU 001
-Timer:     	EQU 002
-Hex0:      	EQU 004
-Hex1:      	EQU 005
-PWM:		EQU 032
-reset_Ctrl_state:	DW &b1000000000000000
+ErrorState:
+	jump ErrorState
+	
+; Variables
+	Value:		DW 0
+	Score:		DW 0
+	StartTime:	DW 0
+	EndTime:	DW 0
+	SwitchRes: 	DW 0
+	; Useful values
+	Bit08:		DW &B0111111111
+	Bit9:      	DW &B1000000000
+	One: 		DW 		1
+	Temp: 		DW 		0
+	Count: 		DW 		-1
+	NegOne: 	DW 		-1
+	Negsixteen:	DW	-16
+	Error: 		DW	128
+	LED:		DW	1
+	; IO address constants
+	Switches:  EQU 000
+	LEDs:      EQU 001
+	Timer:     EQU 002
+	Hex0:      EQU 004
+	Hex1:	   EQU 005
+	PWM:	   EQU 032
+	reset_Ctrl_state:	DW &b1000000000000000
