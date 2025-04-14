@@ -4,7 +4,8 @@ Init:
 	Store	Value
 	Store	Score
 	Out		Hex1
-	
+	call 	Low
+
 Wait:
 	In 		Switches
 	JZero	Time
@@ -31,11 +32,10 @@ Done:
 	Sub 	Bit9
 	JZero 	Done
 	jump 	Finder
-
 Correct:
 	In 		Timer
 	Store 	EndTime
-	Loadi	100
+	Loadi	200
 	Sub		EndTime
 	Add		StartTime
 	JNeg	ModScore
@@ -43,7 +43,7 @@ UpdateScore:
 	Add 	Score
 	Store 	Score
 	Out		Hex1
-	Jump	Wait
+	Jump	Looper
 ModScore:
 	Loadi	0
 	Jump	UpdateScore
@@ -52,57 +52,7 @@ Finder:
 	JZero ErrorState
 	Store Temp 
 Rest:
-
-	loadi 1
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b10
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b100
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b1000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b10000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b100000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b1000000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b10000000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b100000000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b1000000000
-	out PWM
-	loadi 0
-	out PWM
-	
+	call Low	
 	
 	loadi 1
 	store LED
@@ -170,6 +120,109 @@ Modify:
 ErrorState:
 	jump ErrorState
 	
+Looper:
+	call Low
+	loadi 33
+	store temp1
+	loadi 0
+	store temp2
+	store Counter
+WinPattern:
+	in Switches
+	jzero Init
+
+	load temp1
+	out PWM
+	load temp2
+	out PWM
+	addi 10
+	store temp2
+	addi -100
+	store temp2
+	jzero ShiftTemp
+	call Delay
+	
+	load temp2
+	addi 100
+	store temp2
+	
+	jump WinPattern
+	
+ShiftTemp:
+	load temp1
+	shift 1
+	store temp1
+	load Counter
+	addi 1
+	store Counter
+	addi -5
+	jzero Looper
+	
+	loadi 0
+	store temp2
+	jump WinPattern
+	
+Delay:
+	OUT    Timer
+WaitingLoop:
+	IN     Timer
+	ADDI   -1
+	JNEG   WaitingLoop
+	RETURN
+	
+Low:
+	loadi 1
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b10
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b100
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b1000
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b10000
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b100000
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b1000000
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b10000000
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b100000000
+	out PWM
+	loadi 0
+	out PWM
+
+	loadi &b1000000000
+	out PWM
+	loadi 0
+	out PWM
+	RETURN
+	
+	
 ; Variables
 	Value:		DW 0
 	Score:		DW 0
@@ -186,6 +239,10 @@ ErrorState:
 	Negsixteen:	DW	-16
 	Error: 		DW	128
 	LED:		DW	1
+	Counter: 	DW 	0
+	i:			DW 	0
+	temp1:		DW 	1
+	temp2:		DW 	0
 	; IO address constants
 	Switches:  EQU 000
 	LEDs:      EQU 001
