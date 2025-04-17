@@ -171,52 +171,7 @@ WaitingLoop:
 	RETURN
 	
 Low:
-	loadi 1
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b10
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b100
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b1000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b10000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b100000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b1000000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b10000000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b100000000
-	out PWM
-	loadi 0
-	out PWM
-
-	loadi &b1000000000
+	loadi &b1111111111
 	out PWM
 	loadi 0
 	out PWM

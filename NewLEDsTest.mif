@@ -5,23 +5,154 @@ ADDRESS_RADIX=HEX;
 DATA_RADIX=HEX;
 
 CONTENT BEGIN
-0000: B801; -- loadi &b0000000001 ;choose right most LED
-0001: 9820; -- out PWM
-0002: B864; -- loadi &h64 ;100%
-0003: 9820; -- out PWM
-0004: B838; -- loadi &b0000111000 ;choose 3 LEDs 3 from right
-0005: 9820; -- out PWM
-0006: B832; -- loadi &h32 ;50%
-0007: 9820; -- out PWM
-0008: BB00; -- loadi &b1100000000 ;choose left 2 most LED
-0009: 9820; -- out PWM
-000A: 0811; -- load reset_Ctrl_state ;reset state to LED select
-000B: 9820; -- out PWM
-000C: B880; -- loadi &b0010000000 ;choose 3rd from left LED
-000D: 9820; -- out PWM
-000E: B816; -- loadi &h16 ;25%
-000F: 9820; -- out PWM
-0010: 2810; -- jump loop
-0011: 8000; -- reset_Ctrl_state:	DW &b1000000000000000
-[0012..07FF] : 0000; -- [empty memory]
+0000: B800; -- 	Loadi 	0
+0001: 1082; -- 	Store	Value
+0002: 1083; -- 	Store	Score
+0003: 9805; -- 	Out		Hex1
+0004: 807D; -- 	call 	Low
+0005: 9000; -- 	In 		Switches
+0006: 4008; -- 	JZero	Time
+0007: 2805; -- 	Jump	Wait
+0008: 0882; -- 	Load 	Value
+0009: 6801; --     Addi 	1
+000A: 1082; --     Store 	Value
+000B: 9000; -- 	IN 		Switches
+000C: 2088; -- 	Sub		Bit9
+000D: 400F; -- 	JZero 	Calc
+000E: 2808; -- 	Jump 	Time
+000F: 0882; -- 	Load 	Value
+0010: 4887; -- 	And 	Bit08
+0011: 4054; -- 	JZero	Modify
+0012: 1082; -- 	Store 	Value ; we get the target RNG value
+0013: 9804; -- 	Out 	Hex0
+0014: 9002; -- 	In		Timer
+0015: 1084; -- 	Store 	StartTime
+0016: 9000; -- 	In 		Switches
+0017: 2088; -- 	Sub 	Bit9
+0018: 4016; -- 	JZero 	Done
+0019: 2826; -- 	jump 	Finder
+001A: 9002; -- 	In 		Timer
+001B: 1085; -- 	Store 	EndTime
+001C: B8C8; -- 	Loadi	200
+001D: 2085; -- 	Sub		EndTime
+001E: 1884; -- 	Add		StartTime
+001F: 3024; -- 	JNeg	ModScore
+0020: 1883; -- 	Add 	Score
+0021: 1083; -- 	Store 	Score
+0022: 9805; -- 	Out		Hex1
+0023: 2857; -- 	Jump	Looper
+0024: B800; -- 	Loadi	0
+0025: 2820; -- 	Jump	UpdateScore
+0026: 4056; -- 	JZero ErrorState
+0027: 108A; -- 	Store Temp 
+0028: 807D; -- 	call Low	
+0029: B801; -- 	loadi 1
+002A: 108F; -- 	store LED
+002B: 9000; -- 	in switches
+002C: 2088; -- 	sub Bit9
+002D: 2082; -- 	sub Value
+002E: 401A; -- 	jzero Correct
+002F: 108A; -- 	store temp
+0030: 3033; -- 	jneg abs
+0031: 108E; -- 	store Error
+0032: 2836; -- 	jump pos
+0033: B800; -- 	loadi 0
+0034: 208A; -- 	sub temp
+0035: 108E; -- 	store Error
+0036: B880; -- 	loadi 128
+0037: 208E; -- 	sub Error
+0038: 383B; -- 	jpos change
+0039: B880; -- 	loadi 128
+003A: 108E; -- 	store Error
+003B: B880; -- 	loadi 128
+003C: 208E; -- 	sub Error
+003D: 108E; -- 	store Error
+003E: B810; -- 	loadi 16
+003F: 208E; -- 	sub Error
+0040: 384F; -- 	jpos Remainder
+0041: 404D; -- 	jzero Zero
+0042: 088F; -- 	load LED
+0043: 9820; -- 	out PWM
+0044: B864; -- 	loadi &h64
+0045: 9820; -- 	out PWM
+0046: 088F; -- 	load LED
+0047: 6001; -- 	shift 1
+0048: 108F; -- 	store LED
+0049: 088E; -- 	load Error
+004A: 188D; -- 	add Negsixteen
+004B: 108E; -- 	store Error
+004C: 283E; -- 	jump LEDS_
+004D: B864; -- 	loadi &h64
+004E: 108E; -- 	store Error
+004F: 088F; -- 	load LED
+0050: 9820; -- 	out PWM
+0051: 088E; -- 	load Error
+0052: 9820; -- 	out PWM
+0053: 2828; -- 	jump Rest
+0054: 69FF; -- 	Addi 	511
+0055: 2812; -- 	Jump	Send
+0056: 2856; -- 	jump ErrorState
+0057: 807D; -- 	call Low
+0058: B821; -- 	loadi 33
+0059: 1092; -- 	store temp1
+005A: B800; -- 	loadi 0
+005B: 1093; -- 	store temp2
+005C: 1090; -- 	store Counter
+005D: 9000; -- 	in Switches
+005E: 4000; -- 	jzero Init
+005F: 0892; -- 	load temp1
+0060: 9820; -- 	out PWM
+0061: 0893; -- 	load temp2
+0062: 9820; -- 	out PWM
+0063: 680A; -- 	addi 10
+0064: 1093; -- 	store temp2
+0065: 6F9C; -- 	addi -100
+0066: 1093; -- 	store temp2
+0067: 406D; -- 	jzero ShiftTemp
+0068: 8078; -- 	call Delay
+0069: 0893; -- 	load temp2
+006A: 6864; -- 	addi 100
+006B: 1093; -- 	store temp2
+006C: 285D; -- 	jump WinPattern
+006D: 0892; -- 	load temp1
+006E: 6001; -- 	shift 1
+006F: 1092; -- 	store temp1
+0070: 0890; -- 	load Counter
+0071: 6801; -- 	addi 1
+0072: 1090; -- 	store Counter
+0073: 6FFB; -- 	addi -5
+0074: 4057; -- 	jzero Looper
+0075: B800; -- 	loadi 0
+0076: 1093; -- 	store temp2
+0077: 285D; -- 	jump WinPattern
+0078: 9802; -- 	OUT    Timer
+0079: 9002; -- 	IN     Timer
+007A: 6FFF; -- 	ADDI   -1
+007B: 3079; -- 	JNEG   WaitingLoop
+007C: 8800; -- 	RETURN
+007D: BBFF; -- 	loadi &b1111111111
+007E: 9820; -- 	out PWM
+007F: B800; -- 	loadi 0
+0080: 9820; -- 	out PWM
+0081: 8800; -- 	RETURN
+0082: 0000; -- 	Value:		DW 0
+0083: 0000; -- 	Score:		DW 0
+0084: 0000; -- 	StartTime:	DW 0
+0085: 0000; -- 	EndTime:	DW 0
+0086: 0000; -- 	SwitchRes: 	DW 0
+0087: 01FF; -- 	Bit08:		DW &B0111111111
+0088: 0200; -- 	Bit9:      	DW &B1000000000
+0089: 0001; -- 	One: 		DW 		1
+008A: 0000; -- 	Temp: 		DW 		0
+008B: FFFF; -- 	Count: 		DW 		-1
+008C: FFFF; -- 	NegOne: 	DW 		-1
+008D: FFF0; -- 	Negsixteen:	DW	-16
+008E: 0080; -- 	Error: 		DW	128
+008F: 0001; -- 	LED:		DW	1
+0090: 0000; -- 	Counter: 	DW 	0
+0091: 0000; -- 	i:			DW 	0
+0092: 0001; -- 	temp1:		DW 	1
+0093: 0000; -- 	temp2:		DW 	0
+0094: 8000; -- 	reset_Ctrl_state:	DW &b1000000000000000
+[0095..07FF] : 0000; -- [empty memory]
 END;
